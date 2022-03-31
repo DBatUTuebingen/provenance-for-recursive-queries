@@ -1,8 +1,9 @@
 
+
 # Overview
 
 
-This repository contains supplementery material for the paper submission
+This repository contains supplementary material for the paper submission
 
 *Data Provenance for Recursive SQL Queries*
 
@@ -23,7 +24,7 @@ We have tested all queries on PostgreSQL V. 14.1.
 
 ## Auxiliary File: aux.sql
 
-This file provides necessary definitions (like, types, tables and UDFs) to turn an ordinary PostgreSQL installation into a runtime for provenance analysis. These definitions are low invasive which is one of the strong points of our approach to provenance analysis.
+This file provides necessary definitions (like types, tables, and UDFs) to turn an ordinary PostgreSQL installation into a runtime for provenance analysis. These definitions are low invasive which is one of the strong points of our approach to provenance analysis.
 
 Installation: $ psql < aux.sql
 
@@ -34,7 +35,7 @@ More information can be found in the aux.sql file.
 
 This file provides a new column type. Contents of such columns are ignored by SQL **DISTINCT** operations. Such logic would be required for recursive queries with **UNION DISTINCT** semantics.
 
-Please note that this is a mere outlook for future research. In the paper submission we only cover **UNION ALL** semantics.
+Please note that this is a mere outlook for future research. In the paper submission, we only cover **UNION ALL** semantics.
 
 Installation: $ psql < same.sql
 
@@ -47,7 +48,7 @@ Each example consists of
 
 * example data (=tables.sql),
 * original (=source.sql) query,
-* the queries rewritten for provenance analysis (p1.sql, p2.sql) and
+* the queries rewritten for provenance analysis (p1.sql, p2.sql), and
 * a make file for convenient evaluation.
 
 UDF examples have an additional udf.sql file.
@@ -57,7 +58,7 @@ The additional file p2e.sql also implements phase 2 of the provenance analysis b
 
 ## bom
 
-This example evaluates the Bill of Materials for a humanoid robot. It is an example for **WITH RECURSIVE** in **UNION ALL** semantics and discussed in the paper.
+This example evaluates the Bill of Materials for a humanoid robot. It is an example of **WITH RECURSIVE** with **UNION ALL** semantics and it is discussed in the paper.
 
 
 ### Reading the Output
@@ -126,7 +127,7 @@ Put in natural language, this means that the input value *humanoid* has been ins
 
 ## dtw
 
-This examples evaluates the DTW value of two time series. It is an example for a recursive UDF and discussed in the paper.
+This example evaluates the DTW value of two time series. It is an example of a recursive UDF and is discussed in the paper.
 
 
 ### dtw-experiments
@@ -136,12 +137,12 @@ For completeness, we have also provided the DTW queries that have been used in t
 
 ## fsm
 
-This example implements a finite state machine in SQL. This machine is used to realize a parser for chemical formulae. It is an example for a recursive UDF.
+This example implements a finite state machine in SQL. This machine is used to realize a parser for chemical formulae. It is an example of a recursive UDF.
 
 
 ## lcs
 
-This query computes the longest common subsequence of two strings. It is an example for a recursive UDF.
+This query computes the longest common subsequence of two strings. It is an example of a recursive UDF.
 
 
 ## mq
@@ -152,5 +153,4 @@ The marching squares example implements a 2x2 square that moves over the height 
 ## reachable
 
 This query computes the reachable nodes in a directed graph. It is an example for **WITH RECURSIVE** in **UNION DISTINCT** semantics.
-
 
