@@ -57,7 +57,7 @@ The additional file p2e.sql also implements phase 2 of the provenance analysis b
 
 ## bom
 
-This examples evaluates the Bill of Materials for a humanoid robot. It is an example for **WITH RECURSIVE** in **UNION ALL** semantics and discussed in the paper.
+This example evaluates the Bill of Materials for a humanoid robot. It is an example for **WITH RECURSIVE** in **UNION ALL** semantics and discussed in the paper.
 
 
 ### Reading the Output
@@ -121,7 +121,7 @@ postgres=# table parts_2;
 
 Identifier *-1* sits in row *1* of column *part*. In the corresponding row and column of phase 1, we find the data value *humanoid*. The minus in *-1* identifies this as a relationship of why-provenance (while positive signs represent where-provenance).
 
-Put in natural language, this means that the input value *humanoid* has been inspect to decide about the existence of output value *head*. Please see Figure 4 and its discussion in the paper for more details on how to read the tables.
+Put in natural language, this means that the input value *humanoid* has been inspected to decide about the existence of output value *head*. Please see Figure 4 and its discussion in the paper for more details on how to read the tables.
 
 
 ## dtw
