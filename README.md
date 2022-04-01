@@ -10,8 +10,8 @@ This repository contains supplementary material for the paper submission
 to TaPP 2022.
 
 
-Benjamin Dietrich
-Tobias Mueller
+Benjamin Dietrich •
+Tobias Mueller •
 Torsten Grust
 
 
@@ -19,54 +19,61 @@ Torsten Grust
 
 ## Requirements
 
-We have tested all queries on PostgreSQL V. 14.1.
+We have tested all queries on PostgreSQL version 14.1.
 
 
-## Auxiliary File: aux.sql
+## Auxiliary File: `aux.sql`
 
-This file provides necessary definitions (like types, tables, and UDFs) to turn an ordinary PostgreSQL installation into a runtime for provenance analysis. These definitions are low invasive which is one of the strong points of our approach to provenance analysis.
+This file provides necessary definitions (like types, tables, and UDFs) to turn an ordinary PostgreSQL installation into a runtime for provenance analysis. 
+These are user-level definitions that do not invade the PostgreSQL internals, 
+a salient feature of the two-phase approach to provenance derivation.
 
-Installation: $ psql < aux.sql
+Installation (`psql` denotes the PostgreSQL REPL): `$ psql < aux.sql`
 
-More information can be found in the aux.sql file.
+More information can be found in the `aux.sql` file itself.
 
 
-## Auxiliary File: same.sql
+## Auxiliary File: `same.sql`
 
-This file provides a new column type. Contents of such columns are ignored by SQL **DISTINCT** operations. Such logic would be required for recursive queries with **UNION DISTINCT** semantics.
+This file provides a new data type `same`. Values of this type are ignored by SQL **DISTINCT** operations
+which aids provenance derivation of recursive CTEs with `UNION DISTINCT` semantics.
 
-Please note that this is a mere outlook for future research. In the paper submission, we only cover **UNION ALL** semantics.
+Note: We mention the treatment of `UNION DISTINCT` at the end of Section 2.2,
+but only cover `UNION ALL` semantics in the present paper.
 
-Installation: $ psql < same.sql
+Installation: `$ psql < same.sql`
 
-More information can be found in the same.sql file.
+More information can be found in the `same.sql` file.
 
 
 # Examples
 
 Each example consists of
 
-* example data (=tables.sql),
-* original (=source.sql) query,
-* the queries rewritten for provenance analysis (p1.sql, p2.sql), and
-* a make file for convenient evaluation.
+* example data (in file `tables.sql`),
+* original (`source.sql`) query,
+* the queries rewritten for Phases 1 and 2 of provenance derivation (`p1.sql`, `p2.sql`), and
+* a `Makefile` for convenience.
 
-UDF examples have an additional udf.sql file.
+Examples based on recursive UDFs come with an additional `udfs.sql` file that hold the
+function definitions.
 
-The additional file p2e.sql also implements phase 2 of the provenance analysis but is restricted to where-provenance (i.e., without why-provenance).
+The additional file `p2e.sql` also implements Phase 2 of provenance derivation 
+but is restricted to *where*-provenance (and thus ignores *why*-provenance).
 
 
-## bom
+## `bom`
 
-This example evaluates the Bill of Materials for a humanoid robot. It is an example of **WITH RECURSIVE** with **UNION ALL** semantics and it is discussed in the paper.
+This example evaluates the *bill of materials* for a humanoid robot. 
+It is an example of `WITH RECURSIVE` with `UNION ALL` semantics and it is discussed in the paper.
 
 
 ### Reading the Output
 
-Example output:
+**Example query output:**
 
 ```
-psql < p1.sql
+$ psql < p1.sql
  tuid | sub_part | quantity
 ------+----------+----------
     8 | head     |        1
@@ -77,7 +84,7 @@ psql < p1.sql
    13 | finger   |       10
 (6 rows)
 
-psql < p2.sql
+$ psql < p2.sql
  tuid |        sub_part        |          quantity
 ------+------------------------+-----------------------------
     8 | {-1,2}                 | {-1,3}
@@ -89,10 +96,16 @@ psql < p2.sql
 (6 rows)
 ```
 
-For example, the data provenance of *head* (in row *8* and column *sub_part*) can be found in the corresponding row (*8*) and column (*sub_part*) of phase 2. Then, the provenance identifiers in *{-1,2}* can be traced back to the base tables.
+(Column `tuid` represent column `ϱ` in the paper.  Negative cell identifiers like `-1`
+indicate *why*-provenance, positive identifiers indicate *where*-provenance.)
+
+To illustrate, the data provenance of *head* (in row *8* and column `sub_part`) can be 
+found in the corresponding row (*8*) and column (`sub_part`) of the Phase 2 output. 
+The provenance identifiers in *{-1,2}* found in that table cell 
+can be traced back to the base tables.
 
 
-Base tables:
+**Example base tables:**
 
 ```
 postgres=# table parts_1;
@@ -120,37 +133,48 @@ postgres=# table parts_2;
 (7 rows)
 ```
 
-Identifier *-1* sits in row *1* of column *part*. In the corresponding row and column of phase 1, we find the data value *humanoid*. The minus in *-1* identifies this as a relationship of why-provenance (while positive signs represent where-provenance).
+Cell identifier `-1` sits in row *1* of column `part`. 
+In the corresponding row and column of Phase 1, we find the data value `humanoid`. 
 
-Put in natural language, this means that the input value *humanoid* has been inspected to decide about the existence of output value *head*. Please see Figure 4 and its discussion in the paper for more details on how to read the tables.
-
-
-## dtw
-
-This example evaluates the DTW value of two time series. It is an example of a recursive UDF and is discussed in the paper.
+Interpretation: the input value `humanoid` has been inspected to decide 
+the existence of output value `head`. Please see Figure 4 and its discussion in 
+the paper for more details on how to read these tables.
 
 
-### dtw-experiments
+## `dtw`
 
-For completeness, we have also provided the DTW queries that have been used in the quantitative experiments. However, these queries cannot be evaluated. We do not provide the required *pset* plugin here.
-
-
-## fsm
-
-This example implements a finite state machine in SQL. This machine is used to realize a parser for chemical formulae. It is an example of a recursive UDF.
+This example evaluates the *Dynamic Time Warping* (DTW) score of two time series. 
+It is an example of a recursive UDF and is discussed in the paper.
 
 
-## lcs
+### `dtw-experiments`
+
+For completeness, we have also provided the DTW queries that have been used 
+in Section 3.2 (experiments). However, these queries cannot be evaluated as is:
+we do not provide the required PostgreSQL bit set extension here.  Please approach
+us if you are interested.
+
+
+## `fsm`
+
+This example implements a finite state machine in SQL. This machine is used to realize a 
+parser for chemical formulae. It is an example of a recursive UDF.
+
+
+## `lcs`
 
 This query computes the longest common subsequence of two strings. It is an example of a recursive UDF.
 
 
-## mq
+## `mq`
 
-The marching squares example implements a 2x2 square that moves over the height profile of a hilly landscape. The result table contains the track of said square. This track corresponds to the mountain edge. This is an example for **WITH RECURSIVE** in **UNION DISTINCT** semantics.
+This *Marching Squares* example implements a 2x2 pixel square that moves over the height 
+profile of a hilly landscape. The result table contains the track of said square along the
+hill's perimeter. This is an example for `WITH RECURSIVE` in `UNION DISTINCT` semantics.
 
 
-## reachable
+## `reachable`
 
-This query computes the reachable nodes in a directed graph. It is an example for **WITH RECURSIVE** in **UNION DISTINCT** semantics.
+This query computes the reachable nodes in a directed graph. 
+It is an example for `WITH RECURSIVE` in `UNION DISTINCT` semantics.
 
