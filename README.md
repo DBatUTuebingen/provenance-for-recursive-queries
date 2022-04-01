@@ -24,8 +24,8 @@ We have tested all queries on PostgreSQL version 14.1.
 
 ## Auxiliary File: `aux.sql`
 
-This file provides necessary definitions (like types, tables, and UDFs) to turn an ordinary PostgreSQL installation into a runtime for provenance analysis. 
-These are user-level definitions that do not invade the PostgreSQL internals, 
+This file provides necessary definitions (like types, tables, and UDFs) to turn an ordinary PostgreSQL installation into a runtime for provenance analysis.
+These are user-level definitions that do not invade the PostgreSQL internals,
 a salient feature of the two-phase approach to provenance derivation.
 
 Installation (`psql` denotes the PostgreSQL REPL): `$ psql < aux.sql`
@@ -58,13 +58,13 @@ Each example consists of
 Examples based on recursive UDFs come with an additional `udfs.sql` file that hold the
 function definitions.
 
-The additional file `p2e.sql` also implements Phase 2 of provenance derivation 
+The additional file `p2e.sql` also implements Phase 2 of provenance derivation
 but is restricted to *where*-provenance (and thus ignores *why*-provenance).
 
 
 ## `bom`
 
-This example evaluates the *bill of materials* for a humanoid robot. 
+This example evaluates the *bill of materials* for a humanoid robot.
 It is an example of `WITH RECURSIVE` with `UNION ALL` semantics and it is discussed in the paper.
 
 
@@ -99,9 +99,9 @@ $ psql < p2.sql
 (Column `tuid` represent column `ϱ` in the paper.  Negative cell identifiers like `-1`
 indicate *why*-provenance, positive identifiers indicate *where*-provenance.)
 
-To illustrate, the data provenance of *head* (in row *8* and column `sub_part`) can be 
-found in the corresponding row (*8*) and column (`sub_part`) of the Phase 2 output. 
-The provenance identifiers in *{-1,2}* found in that table cell 
+To illustrate, the data provenance of *head* (in row *8* and column `sub_part`) can be
+found in the corresponding row (*8*) and column (`sub_part`) of the Phase 2 output.
+The provenance identifiers in *{-1,2}* found in that table cell
 can be traced back to the base tables.
 
 
@@ -133,31 +133,38 @@ postgres=# table parts_2;
 (7 rows)
 ```
 
-Cell identifier `-1` sits in row *1* of column `part`. 
-In the corresponding row and column of Phase 1, we find the data value `humanoid`. 
+Cell identifier `-1` sits in row *1* of column `part`.
+In the corresponding row and column of Phase 1, we find the data value `humanoid`.
 
-Interpretation: the input value `humanoid` has been inspected to decide 
-the existence of output value `head`. Please see Figure 4 and its discussion in 
+Interpretation: the input value `humanoid` has been inspected to decide
+the existence of output value `head`. Please see Figure 4 and its discussion in
 the paper for more details on how to read these tables.
 
 
 ## `dtw`
 
-This example evaluates the *Dynamic Time Warping* (DTW) score of two time series. 
+This example evaluates the *Dynamic Time Warping* (DTW) score of two time series.
 It is an example of a recursive UDF and is discussed in the paper.
 
 
 ### `dtw-experiments`
 
-For completeness, we have also provided the DTW queries that have been used 
-in Section 3.2 (experiments). However, these queries cannot be evaluated as is:
+For completeness, we have also provided the DTW queries that have been used
+in Section 3.2 (experiments). Noteworthy differences are listed below.
+
+* Provenance sets are not implemented as arrays. Instead, we employ the bit set extension also mentioned in the paper.
+* The recursive `dtw()` UDF is formulated in the `PL/PGSQL` dialect instead of `SQL`. This is a very basic transformation which does not change the function body, i.e. is consistent with the provenance rewrite rules from the paper. However, it is a worthwile PostgreSQL-specific optimization for the evaluation of recursive UDFs. The reason is that `PL/PGSQL` makes better use of PostgreSQL's plan caching and thereby saves time in every UDF call but the first one. This optimization boosts both regular query evaluation and provenance derivation.
+* Instead of example data, we employ a data generator. Time series of variable length are created as specified by the `:scalefac` variable (syntax example: `$ psql < tables.sql -v scalefac=4`).
+
+However, these queries cannot be evaluated as is:
 we do not provide the required PostgreSQL bit set extension here.  Please approach
 us if you are interested.
 
 
+
 ## `fsm`
 
-This example implements a finite state machine in SQL. This machine is used to realize a 
+This example implements a finite state machine in SQL. This machine is used to realize a
 parser for chemical formulae. It is an example of a recursive UDF.
 
 
@@ -168,13 +175,13 @@ This query computes the longest common subsequence of two strings. It is an exam
 
 ## `mq`
 
-This *Marching Squares* example implements a 2x2 pixel square that moves over the height 
+This *Marching Squares* example implements a 2x2 pixel square that moves over the height
 profile of a hilly landscape. The result table contains the track of said square along the
 hill's perimeter. This is an example for `WITH RECURSIVE` in `UNION DISTINCT` semantics.
 
 
 ## `reachable`
 
-This query computes the reachable nodes in a directed graph. 
+This query computes the reachable nodes in a directed graph.
 It is an example for `WITH RECURSIVE` in `UNION DISTINCT` semantics.
 
